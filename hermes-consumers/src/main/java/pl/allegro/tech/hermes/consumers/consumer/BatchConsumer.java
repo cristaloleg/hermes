@@ -27,7 +27,6 @@ import pl.allegro.tech.hermes.consumers.consumer.rate.BatchConsumerRateLimiter;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.MessageReceiver;
 import pl.allegro.tech.hermes.consumers.consumer.receiver.ReceiverFactory;
 import pl.allegro.tech.hermes.consumers.consumer.sender.MessageBatchSender;
-import pl.allegro.tech.hermes.consumers.consumer.sender.MessageBatchSenderFactory;
 import pl.allegro.tech.hermes.consumers.consumer.sender.MessageSendingResult;
 import pl.allegro.tech.hermes.tracker.consumers.Trackers;
 
@@ -46,7 +45,6 @@ public class BatchConsumer implements Consumer {
 
     private final ReceiverFactory messageReceiverFactory;
     private final MessageBatchSender sender;
-    private final MessageBatchSenderFactory messageBatchSenderFactory;
     private final MessageBatchFactory batchFactory;
     private final HermesMetrics hermesMetrics;
     private final ConfigFactory configs;
@@ -64,7 +62,7 @@ public class BatchConsumer implements Consumer {
     private MessageBatchReceiver receiver;
 
     public BatchConsumer(ReceiverFactory messageReceiverFactory,
-                         MessageBatchSenderFactory messageBatchSenderFactory,
+                         MessageBatchSender sender,
                          MessageBatchFactory batchFactory,
                          OffsetQueue offsetQueue,
                          MessageConverterResolver messageConverterResolver,
@@ -75,8 +73,7 @@ public class BatchConsumer implements Consumer {
                          Topic topic,
                          ConfigFactory configs) {
         this.messageReceiverFactory = messageReceiverFactory;
-        this.sender = messageBatchSenderFactory.create(subscription);
-        this.messageBatchSenderFactory = messageBatchSenderFactory;
+        this.sender = sender;
         this.batchFactory = batchFactory;
         this.offsetQueue = offsetQueue;
         this.subscription = subscription;
@@ -180,12 +177,6 @@ public class BatchConsumer implements Consumer {
         if (receiver != null) {
             receiver.moveOffset(subscriptionPartitionOffset);
         }
-    }
-
-    @Override
-    public Consumer createCopy() {
-        return new BatchConsumer(messageReceiverFactory, messageBatchSenderFactory, batchFactory, offsetQueue,
-                messageConverterResolver, messageContentWrapper, hermesMetrics, trackers, subscription, topic, configs);
     }
 
     private Retryer<MessageSendingResult> createRetryer(MessageBatch batch, BatchSubscriptionPolicy policy) {

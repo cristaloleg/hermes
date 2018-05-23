@@ -80,7 +80,7 @@ public class ConsumerFactory {
         Topic topic = topicRepository.getTopicDetails(subscription.getTopicName());
         if (subscription.isBatchSubscription()) {
             return new BatchConsumer(messageReceiverFactory,
-                    batchSenderFactory,
+                    batchSenderFactory.create(subscription),
                     batchFactory,
                     offsetQueue,
                     messageConverterResolver,

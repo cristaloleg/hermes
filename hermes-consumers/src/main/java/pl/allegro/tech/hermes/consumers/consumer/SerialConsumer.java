@@ -48,8 +48,6 @@ public class SerialConsumer implements Consumer {
 
     private MessageReceiver messageReceiver;
 
-    private final ConsumerMessageSenderFactory consumerMessageSenderFactory;
-
     public SerialConsumer(ReceiverFactory messageReceiverFactory,
                           HermesMetrics hermesMetrics,
                           Subscription subscription,
@@ -77,7 +75,6 @@ public class SerialConsumer implements Consumer {
         this.messageReceiver = new UninitializedMessageReceiver();
         this.topic = topic;
         this.sender = consumerMessageSenderFactory.create(subscription, rateLimiter, offsetQueue, inflightSemaphore::release);
-        this.consumerMessageSenderFactory = consumerMessageSenderFactory;
     }
 
     private int calculateInflightSize(Subscription subscription) {
@@ -186,12 +183,5 @@ public class SerialConsumer implements Consumer {
     @Override
     public void moveOffset(SubscriptionPartitionOffset offset) {
         messageReceiver.moveOffset(offset);
-    }
-
-    @Override
-    public Consumer createCopy() {
-        return new SerialConsumer(messageReceiverFactory, hermesMetrics, subscription, rateLimiter,
-                consumerMessageSenderFactory, trackers, messageConverterResolver, topic, configFactory, offsetQueue,
-                consumerAuthorizationHandler);
     }
 }

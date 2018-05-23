@@ -6,7 +6,6 @@ import pl.allegro.tech.hermes.api.SubscriptionName;
 import pl.allegro.tech.hermes.common.config.ConfigFactory;
 import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.metric.HermesMetrics;
-import pl.allegro.tech.hermes.consumers.consumer.Consumer;
 import pl.allegro.tech.hermes.consumers.queue.MonitoredMpscQueue;
 import pl.allegro.tech.hermes.consumers.supervisor.ConsumersExecutorService;
 
@@ -130,8 +129,7 @@ public class ConsumerProcessSupervisor implements Runnable {
                 break;
             case KILL_UNHEALTHY:
                 onConsumerProcess(signal, consumerProcess -> {
-                    Consumer consumerCopy = consumerProcess.getConsumer().createCopy();
-                    taskQueue.offer(signal.createChild(START, clock.millis(), consumerCopy));
+                    taskQueue.offer(signal.createChild(START, clock.millis(), consumerProcess.getConsumer()));
                     kill(signal);
                 });
                 break;

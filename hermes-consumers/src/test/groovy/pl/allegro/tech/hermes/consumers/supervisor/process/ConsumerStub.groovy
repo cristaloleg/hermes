@@ -49,11 +49,6 @@ class ConsumerStub implements Consumer {
 
     }
 
-    @Override
-    Consumer createCopy() {
-        return this
-    }
-
     boolean getInitialized() {
         return initializationCount > 0
     }
