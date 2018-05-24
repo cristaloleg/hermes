@@ -5,6 +5,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pl.allegro.tech.hermes.api.Subscription;
 import pl.allegro.tech.hermes.api.SubscriptionName;
+import pl.allegro.tech.hermes.common.config.Configs;
 import pl.allegro.tech.hermes.common.exception.InternalProcessingException;
 import pl.allegro.tech.hermes.consumers.consumer.SerialConsumer;
 import pl.allegro.tech.hermes.consumers.supervisor.ConsumerFactory;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static com.jayway.awaitility.Duration.FIVE_SECONDS;
+import static com.jayway.awaitility.Duration.ONE_SECOND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -31,6 +33,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
     @BeforeClass
     public static void setupAlways() {
         runtime = new ConsumerTestRuntimeEnvironment(ZookeeperBaseTest::newClient);
+        runtime.withOverriddenIntConfigProperty(Configs.CONSUMER_BACKGROUND_SUPERVISOR_INTERVAL, 20);
     }
 
     @Before
@@ -128,7 +131,8 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         runtime.monitor("consumer", supervisor, node).run();
 
         // then
-        verify(consumerFactory, times(2)).createConsumer(any());
+        await().atMost(ONE_SECOND).until(
+                () -> verify(consumerFactory, times(2)).createConsumer(any()));
     }
 
     @Test
