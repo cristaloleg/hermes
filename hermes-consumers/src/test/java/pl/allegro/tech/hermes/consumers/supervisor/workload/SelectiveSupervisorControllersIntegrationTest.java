@@ -52,7 +52,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         runtime.waitForRegistration(controller.consumerId());
 
-        shutDown(controller);
+        shutdown(controller);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         assertThat(supervisors.stream().filter(SelectiveSupervisorController::isLeader).count()).isEqualTo(1);
 
-        shutDown(supervisors);
+        shutdown(supervisors);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         runtime.awaitUntilAssignmentExists(subscription, node);
 
-        shutDown(node);
+        shutdown(node);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         nodes.forEach(node -> runtime.awaitUntilAssignmentExists(subscription, node));
 
-        shutDown(nodes);
+        shutdown(nodes);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         subscriptions.forEach(subscription -> runtime.awaitUntilAssignmentExists(subscription, node));
 
-        shutDown(node);
+        shutdown(node);
     }
 
     @Test
@@ -146,9 +146,9 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         await().atMost(FIVE_SECONDS).until(
                 () -> verify(consumerFactory, times(2)).createConsumer(any()));
 
-        shutDown(supervisor);
-        shutDown(node);
-        shutDown(monitor);
+        shutdown(supervisor);
+        shutdown(node);
+        shutdown(monitor);
 
     }
 
@@ -165,24 +165,24 @@ public class SelectiveSupervisorControllersIntegrationTest extends ZookeeperBase
         // then
         runtime.verifyConsumerWouldBeCreated(supervisor, runtime.getSubscription(subscription));
 
-        shutDown(supervisor);
+        shutdown(supervisor);
     }
 
-    private void shutDown(SelectiveSupervisorController controller) throws InterruptedException {
+    private void shutdown(SelectiveSupervisorController controller) throws InterruptedException {
         controller.shutdown();
     }
 
-    private void shutDown(List<SelectiveSupervisorController> controllers) throws InterruptedException {
+    private void shutdown(List<SelectiveSupervisorController> controllers) throws InterruptedException {
         for (SelectiveSupervisorController s: controllers) {
             s.shutdown();
         }
     }
 
-    private void shutDown(ConsumersRuntimeMonitor monitor) throws InterruptedException {
+    private void shutdown(ConsumersRuntimeMonitor monitor) throws InterruptedException {
         monitor.shutdown();
     }
 
-    private void shutDown(ConsumersSupervisor supervisor) throws InterruptedException {
+    private void shutdown(ConsumersSupervisor supervisor) throws InterruptedException {
         supervisor.shutdown();
     }
 }
